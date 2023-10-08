@@ -1,19 +1,15 @@
 type Book {
-  BookId: ID!
-  name: String
-}
-
-input BookInput {
-  BookId: ID!
-  name: String
+  id: ID!
+  title: String
+  author: String
+  description: String
+  order: Int
+  url: String
+  amazon: String
+  image: String
 }
 
 type Message {
-  id: ID!
-  content: String
-}
-
-input MessageInput {
   id: ID!
   content: String
 }
@@ -29,12 +25,21 @@ type Schema {
 }
 
 type Mutation {
-  addMessage(input: MessageInput): Message
-  addBook(input: BookInput): Book
+  addMessage(id: ID, content: String): Message
+  addBook(
+    id: ID
+    title: String
+    author: String
+    description: String
+    order: Int
+    url: String
+    amazon: String
+    image: String
+  ): Book
 }
 
 type Query {
-  getOne(BookId: ID!): Book
+  getBook(id: ID!): Book
   listBooks: [Book]
   getMessage(id: ID!): Message
   listMessages(limit: Int, nextToken: String): PaginatedMessages

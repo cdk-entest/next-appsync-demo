@@ -8,18 +8,30 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
-export const getOne = /* GraphQL */ `query GetOne($BookId: ID!) {
-  getOne(BookId: $BookId) {
-    BookId
-    name
+export const getBook = /* GraphQL */ `query GetBook($id: ID!) {
+  getBook(id: $id) {
+    id
+    title
+    author
+    description
+    order
+    url
+    amazon
+    image
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetOneQueryVariables, APITypes.GetOneQuery>;
+` as GeneratedQuery<APITypes.GetBookQueryVariables, APITypes.GetBookQuery>;
 export const listBooks = /* GraphQL */ `query ListBooks {
   listBooks {
-    BookId
-    name
+    id
+    title
+    author
+    description
+    order
+    url
+    amazon
+    image
     __typename
   }
 }
@@ -35,7 +47,8 @@ export const getMessage = /* GraphQL */ `query GetMessage($id: ID!) {
   APITypes.GetMessageQueryVariables,
   APITypes.GetMessageQuery
 >;
-export const listMessages = /* GraphQL */ `query ListMessages($limit: Int, $nextToken: String) {
+export const listMessages =
+  /* GraphQL */ `query ListMessages($limit: Int, $nextToken: String) {
   listMessages(limit: $limit, nextToken: $nextToken) {
     messages {
       id
@@ -47,6 +60,6 @@ export const listMessages = /* GraphQL */ `query ListMessages($limit: Int, $next
   }
 }
 ` as GeneratedQuery<
-  APITypes.ListMessagesQueryVariables,
-  APITypes.ListMessagesQuery
->;
+    APITypes.ListMessagesQueryVariables,
+    APITypes.ListMessagesQuery
+  >;

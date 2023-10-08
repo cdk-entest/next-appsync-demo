@@ -2,26 +2,22 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type MessageInput = {
-  id: string,
-  content?: string | null,
-};
-
 export type Message = {
   __typename: "Message",
   id: string,
   content?: string | null,
 };
 
-export type BookInput = {
-  BookId: string,
-  name?: string | null,
-};
-
 export type Book = {
   __typename: "Book",
-  BookId: string,
-  name?: string | null,
+  id: string,
+  title?: string | null,
+  author?: string | null,
+  description?: string | null,
+  order?: number | null,
+  url?: string | null,
+  amazon?: string | null,
+  image?: string | null,
 };
 
 export type PaginatedMessages = {
@@ -31,7 +27,8 @@ export type PaginatedMessages = {
 };
 
 export type AddMessageMutationVariables = {
-  input?: MessageInput | null,
+  id?: string | null,
+  content?: string | null,
 };
 
 export type AddMessageMutation = {
@@ -43,34 +40,59 @@ export type AddMessageMutation = {
 };
 
 export type AddBookMutationVariables = {
-  input?: BookInput | null,
+  id?: string | null,
+  title?: string | null,
+  author?: string | null,
+  description?: string | null,
+  order?: number | null,
+  url?: string | null,
+  amazon?: string | null,
+  image?: string | null,
 };
 
 export type AddBookMutation = {
   addBook?:  {
     __typename: "Book",
-    BookId: string,
-    name?: string | null,
+    id: string,
+    title?: string | null,
+    author?: string | null,
+    description?: string | null,
+    order?: number | null,
+    url?: string | null,
+    amazon?: string | null,
+    image?: string | null,
   } | null,
 };
 
-export type GetOneQueryVariables = {
-  BookId: string,
+export type GetBookQueryVariables = {
+  id: string,
 };
 
-export type GetOneQuery = {
-  getOne?:  {
+export type GetBookQuery = {
+  getBook?:  {
     __typename: "Book",
-    BookId: string,
-    name?: string | null,
+    id: string,
+    title?: string | null,
+    author?: string | null,
+    description?: string | null,
+    order?: number | null,
+    url?: string | null,
+    amazon?: string | null,
+    image?: string | null,
   } | null,
 };
 
 export type ListBooksQuery = {
   listBooks?:  Array< {
     __typename: "Book",
-    BookId: string,
-    name?: string | null,
+    id: string,
+    title?: string | null,
+    author?: string | null,
+    description?: string | null,
+    order?: number | null,
+    url?: string | null,
+    amazon?: string | null,
+    image?: string | null,
   } | null > | null,
 };
 

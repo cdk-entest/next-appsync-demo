@@ -8,21 +8,46 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-export const addMessage = /* GraphQL */ `mutation AddMessage($input: MessageInput) {
-  addMessage(input: $input) {
+export const addMessage =
+  /* GraphQL */ `mutation AddMessage($id: ID, $content: String) {
+  addMessage(id: $id, content: $content) {
     id
     content
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.AddMessageMutationVariables,
-  APITypes.AddMessageMutation
->;
-export const addBook = /* GraphQL */ `mutation AddBook($input: BookInput) {
-  addBook(input: $input) {
-    BookId
-    name
+    APITypes.AddMessageMutationVariables,
+    APITypes.AddMessageMutation
+  >;
+export const addBook = /* GraphQL */ `mutation AddBook(
+  $id: ID
+  $title: String
+  $author: String
+  $description: String
+  $order: Int
+  $url: String
+  $amazon: String
+  $image: String
+) {
+  addBook(
+    id: $id
+    title: $title
+    author: $author
+    description: $description
+    order: $order
+    url: $url
+    amazon: $amazon
+    image: $image
+  ) {
+    id
+    title
+    author
+    description
+    order
+    url
+    amazon
+    image
     __typename
   }
 }
