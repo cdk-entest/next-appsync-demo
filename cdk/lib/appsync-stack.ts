@@ -37,8 +37,8 @@ export class AppsyncDDBStack extends Stack {
       ),
     });
 
-    // =========================Backend=========================
-    // ddb table
+    // ========================= DDB Table ========================
+    // book table
     const itemsTable = new aws_dynamodb.Table(this, "ItemsTable", {
       tableName: tableName,
       partitionKey: {
@@ -48,6 +48,17 @@ export class AppsyncDDBStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    // message table
+    const messageTable = new aws_dynamodb.Table(this, "MessageTable", {
+      tableName: "Message",
+      partitionKey: {
+        name: "id",
+        type: aws_dynamodb.AttributeType.STRING,
+      },
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    // ======================== Data Sources==============================
     // appsync datasource
     const role = new aws_iam.Role(this, "ItemsDynamoDBRole", {
       assumedBy: new aws_iam.ServicePrincipal("appsync.amazonaws.com"),
@@ -69,6 +80,22 @@ export class AppsyncDDBStack extends Stack {
       serviceRoleArn: role.roleArn,
     });
 
+    const messageDataSource = new aws_appsync.CfnDataSource(
+      this,
+      "MessageDataSource",
+      {
+        apiId: itemsGraphQLApi.attrApiId,
+        name: "MessageDataSource",
+        type: "AMAZON_DYNAMODB",
+        dynamoDbConfig: {
+          tableName: messageTable.tableName,
+          awsRegion: this.region,
+        },
+        serviceRoleArn: role.roleArn,
+      }
+    );
+
+    // ============================ Resolver============================
     // get one item resolver
     const getOneResolver = new aws_appsync.CfnResolver(this, "GetOneResolver", {
       apiId: itemsGraphQLApi.attrApiId,
@@ -102,10 +129,63 @@ export class AppsyncDDBStack extends Stack {
       }
     );
 
+    const getMessageResolver = new aws_appsync.CfnResolver(
+      this,
+      "GetMessageResolver",
+      {
+        apiId: itemsGraphQLApi.attrApiId,
+        typeName: "Query",
+        fieldName: "getMessage",
+        dataSourceName: messageDataSource.name,
+        runtime: {
+          name: "APPSYNC_JS",
+          runtimeVersion: "1.0.0",
+        },
+        code: `
+        import * as ddb from '@aws-appsync/utils/dynamodb'
+        export function request(ctx) {
+        	return ddb.get({ key: { id: ctx.args.id } })
+        }
+        export const response = (ctx) => ctx.result
+      `,
+      }
+    );
+
+    const listMessagesResolver = new aws_appsync.CfnResolver(
+      this,
+      "ListMessagesResolver",
+      {
+        apiId: itemsGraphQLApi.attrApiId,
+        typeName: "Query",
+        fieldName: "listMessages",
+        dataSourceName: messageDataSource.name,
+        runtime: {
+          name: "APPSYNC_JS",
+          runtimeVersion: "1.0.0",
+        },
+        code: `
+        import * as ddb from '@aws-appsync/utils/dynamodb';
+        export function request(ctx) {
+          const { limit = 20, nextToken } = ctx.arguments;
+          return ddb.scan({ limit, nextToken });
+        }
+        export function response(ctx) {
+          const { items: messages = [], nextToken } = ctx.result;
+          return { messages, nextToken };
+        }`,
+      }
+    );
+
     getOneResolver.addDependency(apiSchema);
     getOneResolver.addDependency(dataSource);
 
     listBooksResolver.addDependency(apiSchema);
     listBooksResolver.addDependency(dataSource);
+
+    getMessageResolver.addDependency(apiSchema);
+    getMessageResolver.addDependency(messageDataSource);
+
+    listMessagesResolver.addDependency(apiSchema);
+    listMessagesResolver.addDependency(messageDataSource);
   }
 }

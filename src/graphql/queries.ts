@@ -24,3 +24,29 @@ export const listBooks = /* GraphQL */ `query ListBooks {
   }
 }
 ` as GeneratedQuery<APITypes.ListBooksQueryVariables, APITypes.ListBooksQuery>;
+export const getMessage = /* GraphQL */ `query GetMessage($id: ID!) {
+  getMessage(id: $id) {
+    id
+    content
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetMessageQueryVariables,
+  APITypes.GetMessageQuery
+>;
+export const listMessages = /* GraphQL */ `query ListMessages($limit: Int, $nextToken: String) {
+  listMessages(limit: $limit, nextToken: $nextToken) {
+    messages {
+      id
+      content
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListMessagesQueryVariables,
+  APITypes.ListMessagesQuery
+>;

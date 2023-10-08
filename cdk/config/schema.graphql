@@ -3,11 +3,39 @@ type Book {
   name: String
 }
 
-type Query {
-  getOne(BookId: ID!): Book
-  listBooks: [Book]
+input BookInput {
+  BookId: ID!
+  name: String
+}
+
+type Message {
+  id: ID!
+  content: String
+}
+
+input MessageInput {
+  id: ID!
+  content: String
+}
+
+type PaginatedMessages {
+  messages: [Message]
+  nextToken: String
 }
 
 type Schema {
   query: Query
+  mutation: Mutation
+}
+
+type Mutation {
+  addMessage(input: MessageInput): Message
+  addBook(input: BookInput): Book
+}
+
+type Query {
+  getOne(BookId: ID!): Book
+  listBooks: [Book]
+  getMessage(id: ID!): Message
+  listMessages(limit: Int, nextToken: String): PaginatedMessages
 }
