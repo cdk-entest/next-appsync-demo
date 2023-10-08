@@ -1,0 +1,13 @@
+type Book {
+  BookId: ID!
+  name: String
+}
+
+type Query {
+  getOne(BookId: ID!): Book
+  listBooks: [Book]
+}
+
+type Schema {
+  query: Query
+}

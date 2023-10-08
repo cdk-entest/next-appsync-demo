@@ -19,3 +19,11 @@ export type GetOneQuery = {
     name?: string | null,
   } | null,
 };
+
+export type ListBooksQuery = {
+  listBooks?:  Array< {
+    __typename: "Book",
+    BookId: string,
+    name?: string | null,
+  } | null > | null,
+};

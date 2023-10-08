@@ -1,4 +1,4 @@
-import { getOne } from "@/src/graphql/queries";
+import { getOne, listBooks } from "@/src/graphql/queries";
 import { API } from "@aws-amplify/api";
 
 const config = {
@@ -24,12 +24,31 @@ const getBook = async () => {
   return response;
 };
 
+const getBooks = async () => {
+  "use server";
+
+  const response = (await API.graphql({
+    query: listBooks,
+  })) as any;
+
+  console.log(response);
+  return response.data.listBooks;
+};
+
 const Home = async () => {
   const book = await getBook();
+  const books = await getBooks();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div>Hello Hai {book ? book.data.getOne.name : "error"}</div>
+      <div>
+        <div>Hello Hai {book ? book.data.getOne.name : "error"}</div>
+        <div>
+          {books
+            ? books.map((item, id) => <div key={id}>{item.name}</div>)
+            : "error"}
+        </div>
+      </div>
     </main>
   );
 };

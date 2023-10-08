@@ -85,7 +85,27 @@ export class AppsyncDDBStack extends Stack {
       responseMappingTemplate: `$util.toJson($ctx.result)`,
     });
 
-    getOneResolver.addDependsOn(apiSchema);
-    getOneResolver.addDependsOn(dataSource);
+    // listBooks resolver
+    const listBooksResolver = new aws_appsync.CfnResolver(
+      this,
+      "ListBooksResolver",
+      {
+        apiId: itemsGraphQLApi.attrApiId,
+        typeName: "Query",
+        fieldName: "listBooks",
+        dataSourceName: dataSource.name,
+        requestMappingTemplate: `{
+          "version": "2017-02-28",
+          "operation": "Scan"
+        }`,
+        responseMappingTemplate: `$util.toJson($ctx.result.items)`,
+      }
+    );
+
+    getOneResolver.addDependency(apiSchema);
+    getOneResolver.addDependency(dataSource);
+
+    listBooksResolver.addDependency(apiSchema);
+    listBooksResolver.addDependency(dataSource);
   }
 }

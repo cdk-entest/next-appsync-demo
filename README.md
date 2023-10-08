@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+---
+title: develop a next app with appsync
+author: haimtran
+publishedDate: 08/10/2023
+---
 
-## Getting Started
+## Introduction
 
-First, run the development server:
+## Client Setup
+
+Then generate queries command typescript
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install -g @aws-amplify/cli
+amplify add codegen --apiId tyweijjzgvfqjeqqat52natp4m
+amplify codegen
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create configure for Amplify
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```ts
+const awsmobile = {
+  aws_appsync_graphqlEndpoint: "<API URL>",
+  aws_appsync_region: "<REGION>",
+  aws_appsync_authenticationType: "API_KEY",
+  aws_appsync_apiKey: "<API KEY>",
+};
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+export default awsmobile;
+```
 
-## Learn More
+Let install Amplify lib for graphql operation
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install @aws-amplify/api
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Then develop client code
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```ts
+import { getOne } from "@/src/graphql/queries";
+import { API } from "@aws-amplify/api";
 
-## Deploy on Vercel
+const config = {
+  aws_appsync_graphqlEndpoint: process.env.aws_appsync_graphqlEndpoint,
+  aws_appsync_region: process.env.aws_appsync_region,
+  aws_appsync_authenticationType: process.env.aws_appsync_authenticationType,
+  aws_appsync_apiKey: process.env.aws_appsync_apiKey,
+};
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+API.configure(config);
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+const getBook = async () => {
+  "use server";
+  const response = (await API.graphql({
+    query: getOne,
+    variables: {
+      BookId: "111",
+    },
+  })) as any;
+
+  console.log(response);
+
+  return response;
+};
+
+const Home = async () => {
+  const book = await getBook();
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <div>Hello Hai {book ? book.data.getOne.name : "error"}</div>
+    </main>
+  );
+};
+
+export default Home;
+```
+
+## Reference
+
+- [ddb resolver example](https://docs.aws.amazon.com/appsync/latest/devguide/tutorial-dynamodb-resolvers.html)
+
+- [build client app](https://docs.aws.amazon.com/appsync/latest/devguide/building-a-client-app.html)

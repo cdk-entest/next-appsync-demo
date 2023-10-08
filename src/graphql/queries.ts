@@ -16,3 +16,11 @@ export const getOne = /* GraphQL */ `query GetOne($BookId: ID!) {
   }
 }
 ` as GeneratedQuery<APITypes.GetOneQueryVariables, APITypes.GetOneQuery>;
+export const listBooks = /* GraphQL */ `query ListBooks {
+  listBooks {
+    BookId
+    name
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.ListBooksQueryVariables, APITypes.ListBooksQuery>;
