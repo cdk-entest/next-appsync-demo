@@ -19,26 +19,7 @@ amplify codegen
 Create configure for Amplify
 
 ```ts
-const awsmobile = {
-  aws_appsync_graphqlEndpoint: "<API URL>",
-  aws_appsync_region: "<REGION>",
-  aws_appsync_authenticationType: "API_KEY",
-  aws_appsync_apiKey: "<API KEY>",
-};
-
-export default awsmobile;
-```
-
-Let install Amplify lib for graphql operation
-
-```bash
-npm install @aws-amplify/api
-```
-
-Then develop client code
-
-```ts
-import { getOne } from "@/src/graphql/queries";
+import { getOne, listBooks } from "@/src/graphql/queries";
 import { API } from "@aws-amplify/api";
 
 const config = {
@@ -49,6 +30,11 @@ const config = {
 };
 
 API.configure(config);
+
+type Book = {
+  BookId: string;
+  name: string;
+};
 
 const getBook = async () => {
   "use server";
@@ -64,12 +50,33 @@ const getBook = async () => {
   return response;
 };
 
+const getBooks = async () => {
+  "use server";
+
+  const response = (await API.graphql({
+    query: listBooks,
+  })) as any;
+
+  const books = response.data.listBooks as [Book];
+
+  console.log(books);
+  return response.data.listBooks as [Book];
+};
+
 const Home = async () => {
   const book = await getBook();
+  const books = await getBooks();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div>Hello Hai {book ? book.data.getOne.name : "error"}</div>
+      <div>
+        <div>Hello Hai {book ? book.data.getOne.name : "error"}</div>
+        <div>
+          {books
+            ? books.map((item, id) => <div key={id}>{item.name}</div>)
+            : "error"}
+        </div>
+      </div>
     </main>
   );
 };
