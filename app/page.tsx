@@ -10,6 +10,11 @@ const config = {
 
 API.configure(config);
 
+type Book = {
+  BookId: string;
+  name: string;
+};
+
 const getBook = async () => {
   "use server";
   const response = (await API.graphql({
@@ -31,8 +36,10 @@ const getBooks = async () => {
     query: listBooks,
   })) as any;
 
-  console.log(response);
-  return response.data.listBooks;
+  const books = response.data.listBooks as [Book];
+
+  console.log(books);
+  return response.data.listBooks as [Book];
 };
 
 const Home = async () => {
