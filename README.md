@@ -14,15 +14,42 @@ type Book {
   name: String
 }
 
-type Query {
-  getOne(BookId: ID!): Book
-  listBooks: [Book]
+input BookInput {
+  BookId: ID!
+  name: String
+}
+
+type Message {
+  id: ID!
+  content: String
+}
+
+input MessageInput {
+  id: ID!
+  content: String
+}
+
+type PaginatedMessages {
+  messages: [Message]
+  nextToken: String
 }
 
 type Schema {
   query: Query
+  mutation: Mutation
 }
 
+type Mutation {
+  addMessage(input: MessageInput): Message
+  addBook(input: BookInput): Book
+}
+
+type Query {
+  getOne(BookId: ID!): Book
+  listBooks: [Book]
+  getMessage(id: ID!): Message
+  listMessages(limit: Int, nextToken: String): PaginatedMessages
+}
 ```
 
 Then, let create an appsync api stack
@@ -66,7 +93,7 @@ export class AppsyncDDBStack extends Stack {
       ),
     });
 
-    // ddb table
+    // book table
     const itemsTable = new aws_dynamodb.Table(this, "ItemsTable", {
       tableName: tableName,
       partitionKey: {
@@ -76,6 +103,17 @@ export class AppsyncDDBStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    // message table
+    const messageTable = new aws_dynamodb.Table(this, "MessageTable", {
+      tableName: "Message",
+      partitionKey: {
+        name: "id",
+        type: aws_dynamodb.AttributeType.STRING,
+      },
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    // ======================== Data Sources==============================
     // appsync datasource
     const role = new aws_iam.Role(this, "ItemsDynamoDBRole", {
       assumedBy: new aws_iam.ServicePrincipal("appsync.amazonaws.com"),
@@ -96,6 +134,21 @@ export class AppsyncDDBStack extends Stack {
       },
       serviceRoleArn: role.roleArn,
     });
+
+    const messageDataSource = new aws_appsync.CfnDataSource(
+      this,
+      "MessageDataSource",
+      {
+        apiId: itemsGraphQLApi.attrApiId,
+        name: "MessageDataSource",
+        type: "AMAZON_DYNAMODB",
+        dynamoDbConfig: {
+          tableName: messageTable.tableName,
+          awsRegion: this.region,
+        },
+        serviceRoleArn: role.roleArn,
+      }
+    );
 
     // get one item resolver
     const getOneResolver = new aws_appsync.CfnResolver(this, "GetOneResolver", {
@@ -130,11 +183,64 @@ export class AppsyncDDBStack extends Stack {
       }
     );
 
+    const getMessageResolver = new aws_appsync.CfnResolver(
+      this,
+      "GetMessageResolver",
+      {
+        apiId: itemsGraphQLApi.attrApiId,
+        typeName: "Query",
+        fieldName: "getMessage",
+        dataSourceName: messageDataSource.name,
+        runtime: {
+          name: "APPSYNC_JS",
+          runtimeVersion: "1.0.0",
+        },
+        code: `
+        import * as ddb from '@aws-appsync/utils/dynamodb'
+        export function request(ctx) {
+        	return ddb.get({ key: { id: ctx.args.id } })
+        }
+        export const response = (ctx) => ctx.result
+      `,
+      }
+    );
+
+    const listMessagesResolver = new aws_appsync.CfnResolver(
+      this,
+      "ListMessagesResolver",
+      {
+        apiId: itemsGraphQLApi.attrApiId,
+        typeName: "Query",
+        fieldName: "listMessages",
+        dataSourceName: messageDataSource.name,
+        runtime: {
+          name: "APPSYNC_JS",
+          runtimeVersion: "1.0.0",
+        },
+        code: `
+        import * as ddb from '@aws-appsync/utils/dynamodb';
+        export function request(ctx) {
+          const { limit = 20, nextToken } = ctx.arguments;
+          return ddb.scan({ limit, nextToken });
+        }
+        export function response(ctx) {
+          const { items: messages = [], nextToken } = ctx.result;
+          return { messages, nextToken };
+        }`,
+      }
+    );
+
     getOneResolver.addDependency(apiSchema);
     getOneResolver.addDependency(dataSource);
 
     listBooksResolver.addDependency(apiSchema);
     listBooksResolver.addDependency(dataSource);
+
+    getMessageResolver.addDependency(apiSchema);
+    getMessageResolver.addDependency(messageDataSource);
+
+    listMessagesResolver.addDependency(apiSchema);
+    listMessagesResolver.addDependency(messageDataSource);
   }
 }
 ```
@@ -209,6 +315,60 @@ const Home = async () => {
             ? books.map((item, id) => <div key={id}>{item.name}</div>)
             : "error"}
         </div>
+      </div>
+    </main>
+  );
+};
+
+export default Home;
+```
+
+Similarly, let build a message page
+
+```ts
+import { getOne, listBooks, listMessages } from "@/src/graphql/queries";
+import { API } from "@aws-amplify/api";
+
+const config = {
+  aws_appsync_graphqlEndpoint: process.env.aws_appsync_graphqlEndpoint,
+  aws_appsync_region: process.env.aws_appsync_region,
+  aws_appsync_authenticationType: process.env.aws_appsync_authenticationType,
+  aws_appsync_apiKey: process.env.aws_appsync_apiKey,
+};
+
+API.configure(config);
+
+type Message = {
+  id: string;
+  content: string;
+};
+
+const getMessages = async () => {
+  "use server";
+
+  const response = (await API.graphql({
+    query: listMessages,
+    variables: {
+      limit: 10,
+    },
+  })) as any;
+
+  const messages = response.data.listMessages.messages as [Message];
+
+  console.log(messages);
+
+  return messages;
+};
+
+const Home = async () => {
+  const messages = await getMessages();
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <div>
+        {messages
+          ? messages.map((item, id) => <div key={id}>Hello {item.content}</div>)
+          : "error"}
       </div>
     </main>
   );
