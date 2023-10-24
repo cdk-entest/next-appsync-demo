@@ -8,6 +8,32 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
+export const getImage = /* GraphQL */ `query GetImage($id: ID!) {
+  getImage(id: $id) {
+    id
+    name
+    title
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.GetImageQueryVariables, APITypes.GetImageQuery>;
+export const listImages =
+  /* GraphQL */ `query ListImages($limit: Int, $nextToken: String) {
+  listImages(limit: $limit, nextToken: $nextToken) {
+    images {
+      id
+      name
+      title
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+    APITypes.ListImagesQueryVariables,
+    APITypes.ListImagesQuery
+  >;
 export const getBook = /* GraphQL */ `query GetBook($id: ID!) {
   getBook(id: $id) {
     id

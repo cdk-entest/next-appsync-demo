@@ -8,8 +8,7 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-export const addMessage =
-  /* GraphQL */ `mutation AddMessage($id: ID, $content: String) {
+export const addMessage = /* GraphQL */ `mutation AddMessage($id: ID, $content: String) {
   addMessage(id: $id, content: $content) {
     id
     content
@@ -17,9 +16,21 @@ export const addMessage =
   }
 }
 ` as GeneratedMutation<
-    APITypes.AddMessageMutationVariables,
-    APITypes.AddMessageMutation
-  >;
+  APITypes.AddMessageMutationVariables,
+  APITypes.AddMessageMutation
+>;
+export const addImage = /* GraphQL */ `mutation AddImage($id: ID, $name: String, $title: String) {
+  addImage(id: $id, name: $name, title: $title) {
+    id
+    name
+    title
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.AddImageMutationVariables,
+  APITypes.AddImageMutation
+>;
 export const addBook = /* GraphQL */ `mutation AddBook(
   $id: ID
   $title: String

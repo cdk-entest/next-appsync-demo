@@ -251,7 +251,7 @@ Then generate queries command typescript
 
 ```bash
 npm install -g @aws-amplify/cli
-amplify add codegen --apiId tyweijjzgvfqjeqqat52natp4m
+amplify add codegen --apiId weuyzh3hnndkfm6v76jirc5ilm 
 amplify codegen
 ```
 

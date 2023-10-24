@@ -1,0 +1,20 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - echo "aws_appsync_graphqlEndpoint=$aws_appsync_graphqlEndpoint" >> .env
+        - echo "aws_appsync_region=$aws_appsync_region" >> .env
+        - echo "aws_appsync_authenticationType=$aws_appsync_authenticationType" >> .env
+        - echo "aws_appsync_apiKey=$aws_appsync_apiKey" >> .env
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
