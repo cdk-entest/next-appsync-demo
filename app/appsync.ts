@@ -1,8 +1,8 @@
-export const config = {
-  aws_appsync_graphqlEndpoint: process.env.aws_appsync_graphqlEndpoint,
-  aws_appsync_region: process.env.aws_appsync_region,
-  aws_appsync_authenticationType: process.env.aws_appsync_authenticationType,
-  aws_appsync_apiKey: process.env.aws_appsync_apiKey,
+const config = {
+  appsync_graphqlEndpoint: process.env.appsync_graphqlEndpoint,
+  appsync_region: process.env.appsync_region,
+  appsync_authenticationType: process.env.appsync_authenticationType,
+  appsync_apiKey: process.env.appsync_apiKey,
 };
 
 export type Book = {
