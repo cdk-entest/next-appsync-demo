@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { addBook } from "@/src/graphql/mutations";
 import { API } from "@aws-amplify/api";
-import { config } from "../appsync";
+import { config } from "@/appsync";
 
 API.configure(config);
 

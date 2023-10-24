@@ -1,8 +1,8 @@
 import { listBooks } from "@/src/graphql/queries";
 import { API } from "@aws-amplify/api";
-import { config } from "./appsync";
-import { Book } from "./appsync";
 import Image from "next/image";
+import { config } from "@/appsync";
+import { Book } from "@/appsync";
 
 API.configure(config);
 

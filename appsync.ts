@@ -1,4 +1,4 @@
-const config = {
+export const config = {
   appsync_graphqlEndpoint: process.env.appsync_graphqlEndpoint,
   appsync_region: process.env.appsync_region,
   appsync_authenticationType: process.env.appsync_authenticationType,
