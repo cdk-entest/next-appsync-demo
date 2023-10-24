@@ -2,6 +2,13 @@ import { listImages } from "@/src/graphql/queries";
 import { API } from "@aws-amplify/api";
 import { config } from "@/appsync";
 
+// const config = {
+//   aws_appsync_graphqlEndpoint: process.env.aws_appsync_graphqlEndpoint,
+//   aws_appsync_region: process.env.aws_appsync_region,
+//   aws_appsync_authenticationType: process.env.aws_appsync_authenticationType,
+//   aws_appsync_apiKey: process.env.aws_appsync_apiKey,
+// };
+
 API.configure(config);
 
 type Image = {
